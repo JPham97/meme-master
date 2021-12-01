@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Meme Master</title>
+    <script src="https://www.gstatic.com/firebasejs/5.6.0/firebase.js"></script>
+    <script src="app.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+  </head>
+  <body>
+    <h1 class="memeMasterHeader">Meme Master</h1>
+    <div id="loginContainer">
+      <input id="email" type="email" placeholder="Email"><br>
+      <input id="password" type="password" placeholder="Password">
+      <br><br>
+      <button id="login" class="btn-action memeButtons" onclick="onLogin()">Login</button>
+      <button id="signup" class="btn-secondary memeButtons" onclick="onSignUp()">Sign Up</button>
+    </div>
+
+
+    <script src="https://www.gstatic.com/firebasejs/5.6.0/firebase.js"></script>
+    <script>
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyBxd2ZHz8plYMtpoxPjIG2iCm7rFEvJfdc",
+        authDomain: "meme-master-dfe2c.firebaseapp.com",
+        databaseURL: "https://meme-master-dfe2c.firebaseio.com",
+        projectId: "meme-master-dfe2c",
+        storageBucket: "meme-master-dfe2c.appspot.com",
+        messagingSenderId: "1008743250178"
+      };
+      firebase.initializeApp(config);
+      window.localStorage.setItem("firebase", firebase);
+    </script>
+    <script>
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+          window.location = "home.html";
+        }
+      }); 
+    </script>
+  </body>
+</html>

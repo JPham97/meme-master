@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Meme Master</title>
+    <script src="https://www.gstatic.com/firebasejs/5.6.0/firebase.js"></script>
+    <script src="app.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+    <meta property="og:type" content="website"/>
+    <meta property="og:title" content="Meme Master"/>
+    <meta property="og:description" content="Make and share some memes!"/>
+  </head>
+  <body>
+    <!-- facebook share button initialization -->
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.2&appId=272876360125542&autoLogAppEvents=1';
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+
+    <button class="logoutButton memeButtons" onclick="onLogOut()">Log out</button>
+    <button class="settingsButton memeButtons" onclick="onHome()">Home</button>
+    <h1 class="memeMasterHeader">Meme Master</h1>
+    <hr>
+
+    <!-- facebook share button -->
+    <div id="fbShare" class="fb-share-button" data-href="google.com" data-layout="button_count"></div>
+    <script>
+      // obtain URL to share from local storage
+      url = window.localStorage.getItem("memeUrl");
+      document.getElementById("fbShare").setAttribute("data-href", url);
+    </script>
+
+    <script src="https://www.gstatic.com/firebasejs/5.6.0/firebase.js"></script>
+    <script>
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyBxd2ZHz8plYMtpoxPjIG2iCm7rFEvJfdc",
+        authDomain: "meme-master-dfe2c.firebaseapp.com",
+        databaseURL: "https://meme-master-dfe2c.firebaseio.com",
+        projectId: "meme-master-dfe2c",
+        storageBucket: "meme-master-dfe2c.appspot.com",
+        messagingSenderId: "1008743250178"
+      };
+      firebase.initializeApp(config);
+    </script>
+
+    <script>
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (!user) {
+          window.location = "home.html";
+        }
+      });
+    </script>
+  </body>
+</html>
+

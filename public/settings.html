@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Account Settings</title>
+    <script src="app.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+  </head>
+  <body>
+    <div id="settingsContent">
+      <button class="logoutButton memeButtons" onclick="onLogOut()">Log out</button>
+      <button class="settingsButton memeButtons" onclick="onHome()">Home</button>
+      <h1 class="memeMasterHeader">Meme Master</h1>
+      <hr>
+      <button class="memeButtons" onclick="changePassword()">Change Password</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/5.6.0/firebase.js"></script>
+    <script>
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyBxd2ZHz8plYMtpoxPjIG2iCm7rFEvJfdc",
+        authDomain: "meme-master-dfe2c.firebaseapp.com",
+        databaseURL: "https://meme-master-dfe2c.firebaseio.com",
+        projectId: "meme-master-dfe2c",
+        storageBucket: "meme-master-dfe2c.appspot.com",
+        messagingSenderId: "1008743250178"
+      };
+      firebase.initializeApp(config);
+    </script>
+    <script> 
+      // redirect to login page if not logged in
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (!user) {
+          window.location = "index.html";
+        }
+      });
+    </script>
+  </body>
+</html>
+

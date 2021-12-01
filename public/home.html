@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Home</title>
+    <script src="app.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+    <script>
+      let displayed = false;
+    </script>
+  </head>
+  <body>
+    <button class="logoutButton memeButtons" onclick="onLogOut()">Log out</button>
+    <button class="settingsButton memeButtons" onclick="onSettings()">Settings</button>
+    <h1 class="memeMasterHeader">Meme Master</h1>
+    <hr>
+    <h2>Upload your own meme</h2>
+    <input type="file" class="memeButtons" id="memeUpload">
+    <button class="uploadButtons memeButtons" id="uploadButton">Upload</button>
+    <button class="uploadButtons memeButtons" id="uploadCancelButton">Cancel</button><br><br>
+    <div class="loader" style="display:none;"></div>
+    <h2>Alternatively, create your own meme from scratch</h2>
+    <button class="memeButtons" id="createMemeButton">Create Meme</button><br><br>
+    <br><br>
+
+    <div class="sk-circle" style="display: none;">
+      <div class="sk-circle1 sk-child"></div>
+      <div class="sk-circle2 sk-child"></div>
+      <div class="sk-circle3 sk-child"></div>
+      <div class="sk-circle4 sk-child"></div>
+      <div class="sk-circle5 sk-child"></div>
+      <div class="sk-circle6 sk-child"></div>
+      <div class="sk-circle7 sk-child"></div>
+      <div class="sk-circle8 sk-child"></div>
+      <div class="sk-circle9 sk-child"></div>
+      <div class="sk-circle10 sk-child"></div>
+      <div class="sk-circle11 sk-child"></div>
+      <div class="sk-circle12 sk-child"></div>
+    </div>
+
+    <div id="userMemes">
+    </div> 
+
+    <script src="https://www.gstatic.com/firebasejs/5.6.0/firebase.js"></script>
+    <script>
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyBxd2ZHz8plYMtpoxPjIG2iCm7rFEvJfdc",
+        authDomain: "meme-master-dfe2c.firebaseapp.com",
+        databaseURL: "https://meme-master-dfe2c.firebaseio.com",
+        projectId: "meme-master-dfe2c",
+        storageBucket: "meme-master-dfe2c.appspot.com",
+        messagingSenderId: "1008743250178"
+      };
+      firebase.initializeApp(config);
+    </script>
+    <script> 
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (displayed) {
+          return;
+        }
+        displayed = true;
+        if (user) {
+          displayUserMemes();
+        } else {
+          window.location = "index.html";
+        }
+      });
+      document.getElementById("memeUpload").addEventListener("change", function() {
+        document.getElementById("uploadButton").style.display = "inline-block";
+        document.getElementById("uploadCancelButton").style.display = "inline-block";
+      });
+
+      document.getElementById("uploadCancelButton").addEventListener("click", function() {
+        this.style.display = "none";
+        document.getElementById("uploadButton").style.display = "none";
+        document.getElementById("memeUpload").value = null;
+      });
+
+      document.getElementById("createMemeButton").addEventListener("click", function() {
+        window.location = "create.html";
+      });
+
+      document.getElementById("uploadButton").addEventListener("click", function() {
+        uploadFile("memeUpload", "", "", null);
+      });
+
+    </script>
+  </body>
+</html>
+

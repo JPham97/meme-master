@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Meme Master</title>
+    <script src="https://www.gstatic.com/firebasejs/5.6.0/firebase.js"></script>
+    <script src="app.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+  </head>
+  <body>
+    <button class="logoutButton memeButtons" onclick="onLogOut()">Log out</button>
+    <button class="settingsButton memeButtons" onclick="onSettings()">Settings</button>
+    <button class="memeButtons" id="specialHomeButton" onclick="onHome()">Home</button>
+    <h1 class="memeMasterHeader">Meme Master</h1>
+    <hr>
+    <textarea class="memeText" id="editTopText" placeholder="Enter top text"></textarea><br>
+    <textarea class="memeText" id="editBottomText" placeholder="Enter bottom text"></textarea><br>
+    <button class="memeButtons" id="drawMemeButton">Draw Edits</button><br><br>
+    <canvas id="editMemeCanvas"></canvas><br><br>
+    <button class="memeButtons createHiddenElements" id="editUpdateButton">Update Meme</button><br><br>
+
+    <!-- div for loading animation for async data (explained in style.css at bottom) -->
+    <div class="sk-circle" style="display: none;">
+      <div class="sk-circle1 sk-child"></div>
+      <div class="sk-circle2 sk-child"></div>
+      <div class="sk-circle3 sk-child"></div>
+      <div class="sk-circle4 sk-child"></div>
+      <div class="sk-circle5 sk-child"></div>
+      <div class="sk-circle6 sk-child"></div>
+      <div class="sk-circle7 sk-child"></div>
+      <div class="sk-circle8 sk-child"></div>
+      <div class="sk-circle9 sk-child"></div>
+      <div class="sk-circle10 sk-child"></div>
+      <div class="sk-circle11 sk-child"></div>
+      <div class="sk-circle12 sk-child"></div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/5.6.0/firebase.js"></script>
+    <script>
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyBxd2ZHz8plYMtpoxPjIG2iCm7rFEvJfdc",
+        authDomain: "meme-master-dfe2c.firebaseapp.com",
+        databaseURL: "https://meme-master-dfe2c.firebaseio.com",
+        projectId: "meme-master-dfe2c",
+        storageBucket: "meme-master-dfe2c.appspot.com",
+        messagingSenderId: "1008743250178"
+      };
+      firebase.initializeApp(config);
+    </script>
+    <script>
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (!user) {
+          window.location = "home.html";
+        } else {
+          // retrieve the meme URL for the meme we wish to edit (URL is set
+          // in local storage on home.html page)
+          let id = window.localStorage.getItem("memeToEdit");
+          let split = id.split("^");
+          let file = split[1];
+          file = file.replace(/</g, "_");
+          let child = "/user-memes/" + user.uid + "/" + file + "/";
+
+          let bottomText = "";
+          let topText = "";
+
+          // retrieve meme metadata from firebase
+          let users = firebase.database().ref("/users/" + user.uid);
+          users.on("value", function(snapshot) {
+            // search for meme we want to edit 
+            snapshot.forEach(function(childSnapshot) {
+              let data = childSnapshot.val();
+              if (data.fileName === file) {
+                bottomText = data.bottomText;
+                topText = data.topText;
+
+                // retrieve meme from firebase storage
+                firebase.storage().ref().child(child).getDownloadURL().then(function(url) {
+                  // set cross origin property so that we can work outside of our domain
+                  let meme = document.createElement("img");
+                  meme.crossOrigin = "anonymous";
+                  meme.src = url;
+
+                  meme.onload = function() {
+                    meme.crossOrigin = "anonymous";
+
+                    // draw meme once we have set our edits
+                    document.getElementById("drawMemeButton").addEventListener("click", function() {
+                      drawEdits(meme, "editMemeCanvas", "editTopText", "editBottomText", "editUpdateButton");
+                    });
+
+                    // click event listener for update butotn
+                    // upload meme file to firebase storage
+                    document.getElementById("editUpdateButton").addEventListener("click", function() {
+                      let meme = new Image();
+                      meme.src = document.getElementById("editMemeCanvas").toDataURL();
+                      document.getElementsByClassName("sk-circle")[0].style.display = "block";
+
+                      // convert meme canvas to blob file type to upload to firebase storage
+                      document.getElementById("editMemeCanvas").toBlob(function(blob) {
+                        let file = new File([blob], data.fileName, {type: "application/octet-stream"});
+                        let topText = document.getElementById("editTopText").value;
+                        let bottomText = document.getElementById("editBottomText").value;
+                        
+                        // firebase endpoint
+                        // this will access the non flattened meme endpoint in firebase storage
+                        let endpoint = file.name.substring(0, file.name.length-5) + "<" + file.name.substring(file.name.length-4, file.name.length);
+                        let memePath = "/nonFlattenedMemes/" + user.uid + "/" + endpoint;
+
+                        // update file in firebase storage
+                        let memeUploadTask = firebase.storage().ref().child(memePath).put(file, {});
+                        memeUploadTask.on("state_changed", function(current) {}, function(error) {
+                          document.getElementsByClassName("sk-circle")[0].style.display = "none";
+
+                          alert(error.message);
+                        }, function() {
+                          document.getElementsByClassName("sk-circle")[0].style.display = "none";
+
+                          window.location = "home.html";
+                          document.getElementById("userMemes").innerHTML = "";
+                        });
+
+                      }, "image/png", 0.75);
+                    });
+                  }
+                });
+                return;
+              }
+            })
+          });
+        }
+      }); 
+    </script>
+  </body>
+</html>
+

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Meme Master</title>
+    <script src="https://www.gstatic.com/firebasejs/5.6.0/firebase.js"></script>
+    <script src="app.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+  </head>
+  <body>
+    <button class="logoutButton memeButtons" onclick="onLogOut()">Log out</button>
+    <button class="settingsButton memeButtons" onclick="onSettings()">Settings</button>
+    <button class="memeButtons" id="specialHomeButton" onclick="onHome()">Home</button>
+    <h1 class="memeMasterHeader">Meme Master</h1>
+    <hr>
+    <input type="file" id="createMemeUpload" accept="image/*"><br><br>
+    <textarea class="memeText createHiddenElements" id="topText" placeholder="Enter top text"></textarea><br>
+    <textarea class="memeText createHiddenElements" id="bottomText" placeholder="Enter bottom text"></textarea><br>
+    <button class="memeButtons createHiddenElements" id="sketchMemeButton">Preview Meme</button><br><br>
+
+    <!-- div for loading animation for async data (explained in style.css at bottom) -->
+    <div class="sk-circle" style="display: none;">
+      <div class="sk-circle1 sk-child"></div>
+      <div class="sk-circle2 sk-child"></div>
+      <div class="sk-circle3 sk-child"></div>
+      <div class="sk-circle4 sk-child"></div>
+      <div class="sk-circle5 sk-child"></div>
+      <div class="sk-circle6 sk-child"></div>
+      <div class="sk-circle7 sk-child"></div>
+      <div class="sk-circle8 sk-child"></div>
+      <div class="sk-circle9 sk-child"></div>
+      <div class="sk-circle10 sk-child"></div>
+      <div class="sk-circle11 sk-child"></div>
+      <div class="sk-circle12 sk-child"></div>
+    </div>
+
+    <!-- canvas we draw meme onto for meme creation -->
+    <canvas id="memeCanvas"></canvas><br><br>
+    <button class="memeButtons createHiddenElements" id="createUploadButton">Upload Meme</button><br><br>
+
+    <script src="https://www.gstatic.com/firebasejs/5.6.0/firebase.js"></script>
+    <script>
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyBxd2ZHz8plYMtpoxPjIG2iCm7rFEvJfdc",
+        authDomain: "meme-master-dfe2c.firebaseapp.com",
+        databaseURL: "https://meme-master-dfe2c.firebaseio.com",
+        projectId: "meme-master-dfe2c",
+        storageBucket: "meme-master-dfe2c.appspot.com",
+        messagingSenderId: "1008743250178"
+      };
+      firebase.initializeApp(config);
+      window.localStorage.setItem("firebase", firebase);
+    </script>
+    <script>
+      // check if user is logged in or not
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (!user) {
+          window.location = "home.html";
+        }
+      }); 
+
+      // display all hidden elements once user has chosen file (except for the upload meme button)
+      document.getElementById("createMemeUpload").addEventListener("change", function() {
+        let hiddenElements = document.getElementsByClassName("createHiddenElements");
+        for (let i = 0; i < hiddenElements.length; i++) {
+          if (hiddenElements[i].id === "createUploadButton") continue;
+          hiddenElements[i].style.display = "block";
+        }
+      });
+
+      // event listener for drawing meme button
+      document.getElementById("sketchMemeButton").addEventListener("click", function() {
+        // find the file we are going to draw on for 
+        let fileReader = new FileReader();
+        fileReader.readAsDataURL(document.getElementById("createMemeUpload").files[0]);
+
+        // once file has loaded, draw on html canvas
+        fileReader.onload = function() {
+          // create meme img
+          let meme = document.createElement("img");
+          meme.src = fileReader.result;
+          meme.crossOrigin = "anonymous";
+          meme.onload = function() {
+            drawEdits(meme, "memeCanvas", "topText", "bottomText", "createUploadButton");
+          };
+        };
+      });
+
+      // uploads meme from html canvas to firebase storage on upload button click
+      document.getElementById("createUploadButton").addEventListener("click", function() {
+        // obtain meme from canvas and convert to blob type
+        let meme = new Image();
+        meme.crossOrigin = "anonymous";
+        meme.src = document.getElementById("memeCanvas").toDataURL();
+
+        // obtain meme metadata and upload file to firebase
+        document.getElementById("memeCanvas").toBlob(function(blob) {
+          let imageName = document.getElementById("createMemeUpload").files[0].name;
+          let plainImage = document.getElementById("createMemeUpload").files[0];
+          let file = new File([blob], imageName, {type: "application/octet-stream"});
+          let topText = document.getElementById("topText").value;
+          let bottomText = document.getElementById("bottomText").value;
+          uploadFile("createMemeUpload", topText, bottomText, file);
+        }, "image/png", 0.75);
+
+      });
+    </script>
+  </body>
+</html>
+
